@@ -36,7 +36,6 @@ options:
       - create or delete keypair
     required: false
     default: 'present'
-    aliases: []
   wait:
     description:
       - Wait for the specified action to complete before returning.
@@ -49,7 +48,6 @@ options:
       - How long before wait gives up, in seconds
     required: false
     default: 300
-    aliases: []
     version_added: "1.6"
 
 extends_documentation_fragment:
@@ -127,7 +125,15 @@ def main():
 
     changed = False
 
-    ec2 = ec2_connect(module)
+    region, ec2_url, aws_connect_params = get_aws_connection_info(module)
+    
+    if region:
+        try:
+            ec2 = connect_to_aws(boto.ec2, region, **aws_connect_params)
+        except (boto.exception.NoAuthHandlerFound, StandardError), e:
+            module.fail_json(msg=str(e))
+    else:
+        module.fail_json(msg="region must be specified")
 
     # find the key if present
     key = ec2.get_key_pair(name)
