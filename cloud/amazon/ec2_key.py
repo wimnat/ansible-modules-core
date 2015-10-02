@@ -41,7 +41,6 @@ options:
       - Wait for the specified action to complete before returning.
     required: false
     default: false
-    aliases: []
     version_added: "1.6"
   wait_timeout:
     description:
