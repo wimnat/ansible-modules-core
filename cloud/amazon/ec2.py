@@ -1353,9 +1353,12 @@ def main():
     if not HAS_BOTO:
         module.fail_json(msg='boto required for this module')
 
-    ec2 = ec2_connect(module)
-
     region, ec2_url, aws_connect_kwargs = get_aws_connection_info(module)
+
+    try:
+        ec2 = connect_to_aws(boto.ec2, region, **aws_connect_params)
+    except (boto.exception.NoAuthHandlerFound, StandardError), e:
+        module.fail_json(msg=str(e))
 
     if region:
         try:
